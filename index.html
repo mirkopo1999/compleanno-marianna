@@ -66,17 +66,17 @@ p{font-size:.95rem;line-height:1.82;color:#5a3e2b;}
 <div id="app"></div>
 <script>
 var LI = {answer:'', chars:[], locked:[], nextState:'', errId:''};
-var history = [];
+var navStack = [];
 
 function liLockedHas(i) {
   return LI.locked.indexOf(i) !== -1;
 }
 
 function goBack() {
-  if (history.length > 1) {
-    history.pop();
-    var prev = history[history.length - 1];
-    history.pop();
+  if (navStack.length > 1) {
+    navStack.pop();
+    var prev = navStack[navStack.length - 1];
+    navStack.pop();
     go(prev);
   }
 }
@@ -121,7 +121,7 @@ function letterInput(answer, nextState, errId, showHints) {
     '<input id="li-hidden" class="li-hidden" type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" onkeydown="liHandleKey(event)">' +
     '<div class="li-tap-hint">Tocca qui per digitare</div>' +
     '<div id="li-display">' + boxHtml + '</div>' +
-    '<p class="li-err" id="' + errId + '">Non e\' corretto, riprova!</p>' +
+    '<p class="li-err" id="' + errId + '">Non e corretto, riprova!</p>' +
     '</div>' +
     '<button class="btn" onclick="liConfirm()">Conferma</button>';
 }
@@ -211,8 +211,8 @@ function shakeLI() {
   }
 }
 
-function backButton() {
-  if (history.length <= 1) { return ''; }
+function backBtn() {
+  if (navStack.length <= 1) { return ''; }
   return '<button class="back-btn" onclick="goBack()">&#8592; Indietro</button>';
 }
 
@@ -240,7 +240,7 @@ function go(state) {
     borra_riddle: screenBorraRiddle,
     final: screenFinal
   };
-  history.push(state);
+  navStack.push(state);
   var fn = screens[state];
   document.getElementById('app').innerHTML = fn ? fn() : '';
   window.scrollTo(0, 0);
@@ -249,23 +249,23 @@ function go(state) {
 }
 
 function screenWelcome() {
-  return backButton() +
+  return backBtn() +
     '<div class="screen">' +
     '<div class="icon-big bouncing">&#127874;</div>' +
     '<div class="badge">Messaggio speciale per te</div>' +
     '<h1>Buon Compleanno<br><span>Marianna!</span></h1>' +
     '<div class="divider"></div>' +
-    '<div class="card" style="text-align:center"><p>Allora, cara Marianna...<br>hai aperto questa pagina sperando di trovare il tuo regalo, vero? &#128516;<br><br><span class="highlight">Peccato.</span><br><br>Il regalo non e\' qui.<br>Ma non preoccuparti, non siamo cosi\' crudeli.<br>Ti abbiamo solo preparato una piccola <strong>avventura</strong> prima di consegnartelo!</p></div>' +
-    '<div class="alert-gold">&#9888;&#65039; <strong>Attenzione:</strong> il tuo regalo ti aspetta da qualche parte a Ferrara. Segui le istruzioni e lo troverai. Noi ti guardiamo da lontano &#128064;</div>' +
-    '<button class="btn" onclick="go(\'riddle1\')">Inizia la caccia al tesoro &#128506;&#65039;</button>' +
+    '<div class="card" style="text-align:center"><p>Allora, cara Marianna...<br>hai aperto questa pagina sperando di trovare il tuo regalo, vero? &#128516;<br><br><span class="highlight">Peccato.</span><br><br>Il regalo non e qui.<br>Ma non preoccuparti, non siamo cosi crudeli.<br>Ti abbiamo solo preparato una piccola <strong>avventura</strong> prima di consegnartelo!</p></div>' +
+    '<div class="alert-gold">&#9888; <strong>Attenzione:</strong> il tuo regalo ti aspetta da qualche parte a Ferrara. Segui le istruzioni e lo troverai. Noi ti guardiamo da lontano &#128064;</div>' +
+    '<button class="btn" onclick="go(\'riddle1\')">Inizia la caccia al tesoro</button>' +
     '</div>';
 }
 
 function screenRiddle1() {
-  return backButton() +
+  return backBtn() +
     '<div class="screen">' +
     '<div class="icon-big wiggling">&#128269;</div>' +
-    '<div class="badge">Indovinello #1</div>' +
+    '<div class="badge">Indovinello n.1</div>' +
     '<h1>Prima<br><span>sfida</span></h1>' +
     '<div class="divider"></div>' +
     '<div class="card"><h2>Riesci a rispondere?</h2><p style="font-style:italic;color:var(--deep);font-size:1.05rem;margin-bottom:8px;">Cosa puoi prendere tra Via Piangipane e Via Kennedy?</p></div>' +
@@ -274,32 +274,32 @@ function screenRiddle1() {
 }
 
 function screenRiddle1Ok() {
-  return backButton() +
+  return backBtn() +
     '<div class="screen">' +
     '<div class="icon-big">&#127881;</div>' +
     '<h1><span>Bravissima!!!</span></h1>' +
     '<div class="divider"></div>' +
-    '<div class="card" style="text-align:center"><p>Che ne pensi di dare un\'occhiata di persona?...</p></div>' +
+    '<div class="card" style="text-align:center"><p>Che ne pensi di dare una occhiata di persona?...</p></div>' +
     '<button class="btn" onclick="go(\'riddle1_wait\')">Vado subito</button>' +
     '</div>';
 }
 
 function screenRiddle1Wait() {
-  return backButton() +
+  return backBtn() +
     '<div class="screen">' +
     '<div class="icon-big">&#9995;</div>' +
     '<h1>Hey,<br><span>aspetta!</span></h1>' +
     '<div class="divider"></div>' +
-    '<div class="card" style="text-align:center"><p>Non penserai di sapere gia\' dove andare...<br><br>Ti voglio dare un <strong>altro aiutino</strong>.</p></div>' +
+    '<div class="card" style="text-align:center"><p>Non penserai di sapere gia dove andare...<br><br>Ti voglio dare un <strong>altro aiutino</strong>.</p></div>' +
     '<button class="btn" onclick="go(\'riddle2\')">Prosegui</button>' +
     '</div>';
 }
 
 function screenRiddle2() {
-  return backButton() +
+  return backBtn() +
     '<div class="screen">' +
     '<div class="icon-big wiggling">&#129504;</div>' +
-    '<div class="badge">Indovinello #2</div>' +
+    '<div class="badge">Indovinello n.2</div>' +
     '<h1>Seconda<br><span>sfida</span></h1>' +
     '<div class="divider"></div>' +
     '<div class="card"><h2>Riesci a rispondere?</h2><p style="font-style:italic;color:var(--deep);font-size:1.05rem;margin-bottom:8px;">Come si chiama l\'insieme di contrazioni che prepara la donna al parto?</p></div>' +
@@ -308,40 +308,40 @@ function screenRiddle2() {
 }
 
 function screenRiddle2Ok() {
-  return backButton() +
+  return backBtn() +
     '<div class="screen">' +
     '<div class="icon-big">&#127891;</div>' +
     '<h1><span>Ottimo!</span></h1>' +
     '<div class="divider"></div>' +
-    '<div class="card" style="text-align:center"><p>Ti meriti un bel <strong>30</strong>, ma senza lode - anche perche\' non hai risposto a chissa\' cosa.<br><br><span style="font-size:1.1rem;font-weight:500;">Non ti montare la testa.</span></p></div>' +
+    '<div class="card" style="text-align:center"><p>Ti meriti un bel <strong>30</strong>, ma senza lode - anche perche non hai risposto a chissa cosa.<br><br><span style="font-size:1.1rem;font-weight:500;">Non ti montare la testa.</span></p></div>' +
     '<button class="btn" onclick="go(\'riddle2_question\')">Prosegui</button>' +
     '</div>';
 }
 
 function screenRiddle2Question() {
-  return backButton() +
+  return backBtn() +
     '<div class="screen">' +
     '<div class="icon-big">&#129299;</div>' +
     '<h1>Sei<br><span>capace?</span></h1>' +
     '<div class="divider"></div>' +
     '<div class="card" style="text-align:center"><p>Adesso hai <strong>due belle informazioni</strong>.<br><br>Sei capace di usarle per capire dove ti stiamo portando?</p></div>' +
-    '<div class="btn-row"><button class="btn" onclick="go(\'ppt_riddle\')">Si\'</button><button class="btn outline" onclick="go(\'riddle2_no\')">No</button></div>' +
+    '<div class="btn-row"><button class="btn" onclick="go(\'ppt_riddle\')">Si</button><button class="btn outline" onclick="go(\'riddle2_no\')">No</button></div>' +
     '</div>';
 }
 
 function screenRiddle2No() {
-  return backButton() +
+  return backBtn() +
     '<div class="screen">' +
     '<div class="icon-big">&#128566;</div>' +
     '<h1>Mah...<br><span>davvero?</span></h1>' +
     '<div class="divider"></div>' +
-    '<div class="card" style="text-align:center"><p>Non c\'e\' limite all\'ignoranza...<br>sappiamo fare <strong>1+1</strong>?</p></div>' +
+    '<div class="card" style="text-align:center"><p>Non c\'e limite all\'ignoranza...<br>sappiamo fare <strong>1+1</strong>?</p></div>' +
     '<button class="btn" onclick="go(\'riddle2_question\')">Ok ok, ci riprovo</button>' +
     '</div>';
 }
 
 function screenPptRiddle() {
-  return backButton() +
+  return backBtn() +
     '<div class="screen">' +
     '<div class="icon-big">&#127919;</div>' +
     '<div class="badge">Dimostralo!</div>' +
@@ -353,18 +353,18 @@ function screenPptRiddle() {
 }
 
 function screenPptOk() {
-  return backButton() +
+  return backBtn() +
     '<div class="screen">' +
     '<div class="icon-big pulsing">&#127942;</div>' +
-    '<h1>Non sei cosi\'<br><span>stupida!</span></h1>' +
+    '<h1>Non sei cosi<br><span>stupida!</span></h1>' +
     '<div class="divider"></div>' +
-    '<div class="card" style="text-align:center"><p>...pero\' sei <strong>lenta</strong>. Troppo.<br><br>Dai sbrigati, e\' ora di andare li\'!!!</p></div>' +
+    '<div class="card" style="text-align:center"><p>...pero sei <strong>lenta</strong>. Troppo.<br><br>Dai sbrigati, e ora di andare li!!!</p></div>' +
     '<button class="btn" onclick="go(\'wait1\')">Proseguiamo</button>' +
     '</div>';
 }
 
 function screenWait1() {
-  return backButton() +
+  return backBtn() +
     '<div class="screen">' +
     '<div class="icon-big bouncing">&#128205;</div>' +
     '<h1>Adesso<br><span>muoviti!</span></h1>' +
@@ -375,76 +375,76 @@ function screenWait1() {
 }
 
 function screenApolloRiddle() {
-  return backButton() +
+  return backBtn() +
     '<div class="screen">' +
     '<div class="icon-big wiggling">&#128640;</div>' +
     '<div class="badge">Giusto in tempo per un indovinello</div>' +
     '<h1>Missione<br><span>spaziale</span></h1>' +
     '<div class="divider"></div>' +
-    '<div class="card"><h2>Indovinello:</h2><p style="font-style:italic;color:var(--deep);font-size:1.02rem;margin-bottom:8px;">Qual e\' il numero della missione Apollo che nel 1969 porto\' per la prima volta l\'uomo sulla Luna?</p></div>' +
+    '<div class="card"><h2>Indovinello:</h2><p style="font-style:italic;color:var(--deep);font-size:1.02rem;margin-bottom:8px;">Qual e il numero della missione Apollo che nel 1969 porto per la prima volta l\'uomo sulla Luna?</p></div>' +
     letterInput('11', 'apollo_ok', 'err_apollo', false) +
     '</div>';
 }
 
 function screenApolloOk() {
-  return backButton() +
+  return backBtn() +
     '<div class="screen">' +
     '<div class="icon-big">&#128760;</div>' +
     '<h1>Bene,<br><span>quasi...</span></h1>' +
     '<div class="divider"></div>' +
-    '<div class="card" style="text-align:center"><p>Non sara\' una missione spaziale, ma che ne dici di salire su uno <strong>shuttle di citta\'</strong>?<br><br>Quale lo dovresti gia\' sapere...</p></div>' +
+    '<div class="card" style="text-align:center"><p>Non sara una missione spaziale, ma che ne dici di salire su uno <strong>shuttle di citta</strong>?<br><br>Quale lo dovresti gia sapere...</p></div>' +
     letterInput('11', 'castello_riddle', 'err_bus', false) +
     '</div>';
 }
 
 function screenCastelloRiddle() {
-  return backButton() +
+  return backBtn() +
     '<div class="screen">' +
     '<div class="icon-big">&#128548;</div>' +
-    '<div class="card" style="text-align:center;margin-bottom:0"><p>Ormai non ti ferma piu\' nessuno...<br>oppure <strong>questo indovinello</strong> lo fara\'?</p></div>' +
+    '<div class="card" style="text-align:center;margin-bottom:0"><p>Ormai non ti ferma piu nessuno...<br>oppure <strong>questo indovinello</strong> lo fara?</p></div>' +
     '<div class="divider"></div>' +
-    '<div class="badge">Indovinello #5</div>' +
+    '<div class="badge">Indovinello n.5</div>' +
     '<div class="card"><h2>Che cosa sono?</h2><p style="font-style:italic;color:var(--deep);font-size:.97rem;line-height:1.95;margin-bottom:8px;">Ho torri che toccano il cielo e mura che sfidano il tempo. Re e regine mi hanno abitato, cavalieri mi hanno difeso. Fossati e ponti levatoi erano la mia guardia. Oggi sono memoria di pietra, ma un tempo ero cuore di potere. Che cosa sono?</p></div>' +
     letterInput('il castello', 'castello_ok', 'err_castello', true) +
     '</div>';
 }
 
 function screenCastelloOk() {
-  return backButton() +
+  return backBtn() +
     '<div class="screen">' +
     '<div class="icon-big">&#128529;</div>' +
-    '<h1>E vabbo\'<br><span>dai...</span></h1>' +
+    '<h1>E vabbo<br><span>dai...</span></h1>' +
     '<div class="divider"></div>' +
-    '<div class="card" style="text-align:center"><p>Era per bambini quell\'indovinello.<br><br>Pero\' ora almeno ti sara\' venuto in mente <strong>quando scendere</strong>... spero.<br><br>Anzi, <strong>dimostramelo</strong>:</p></div>' +
+    '<div class="card" style="text-align:center"><p>Era per bambini quell\'indovinello.<br><br>Pero ora almeno ti sara venuto in mente <strong>quando scendere</strong>... spero.<br><br>Anzi, <strong>dimostramelo</strong>:</p></div>' +
     letterInput('centro commerciale il castello', 'cc_ok', 'err_cc', true) +
     '</div>';
 }
 
 function screenCcOk() {
-  return backButton() +
+  return backBtn() +
     '<div class="screen">' +
     '<div class="icon-big pulsing">&#9989;</div>' +
     '<h1>Ottimo,<br><span>ci siamo!</span></h1>' +
     '<div class="divider"></div>' +
-    '<div class="card" style="text-align:center"><p>Allora <strong>ci risentiamo li\'</strong>!<br><br>Avvisami appena sei arrivata.</p></div>' +
+    '<div class="card" style="text-align:center"><p>Allora <strong>ci risentiamo li</strong>!<br><br>Avvisami appena sei arrivata.</p></div>' +
     '<button class="btn gold" onclick="go(\'zara_riddle\')">Sono arrivata</button>' +
     '</div>';
 }
 
 function screenZaraRiddle() {
-  return backButton() +
+  return backBtn() +
     '<div class="screen">' +
     '<div class="icon-big wiggling">&#128717;</div>' +
     '<div class="badge">Quasi quasi...</div>' +
     '<h1>Indovina<br><span>chi sono!</span></h1>' +
     '<div class="divider"></div>' +
-    '<div class="card"><h2>Chi sono?</h2><p style="font-style:italic;color:var(--deep);font-size:.97rem;line-height:1.95;margin-bottom:8px;">Sono nata in Spagna ma oggi mi trovi in ogni grande citta\'. Mi occupo di vestirti seguendo le ultime tendenze, ma se mi cerchi in Via Ada Negri a Ferrara, sono il punto di riferimento per chi vuole andare al centro commerciale. Chi sono?</p></div>' +
+    '<div class="card"><h2>Chi sono?</h2><p style="font-style:italic;color:var(--deep);font-size:.97rem;line-height:1.95;margin-bottom:8px;">Sono nata in Spagna ma oggi mi trovi in ogni grande citta. Mi occupo di vestirti seguendo le ultime tendenze, ma se mi cerchi in Via Ada Negri a Ferrara, sono il punto di riferimento per chi vuole andare al centro commerciale. Chi sono?</p></div>' +
     letterInput('zara', 'zara_ok', 'err_zara', false) +
     '</div>';
 }
 
 function screenZaraOk() {
-  return backButton() +
+  return backBtn() +
     '<div class="screen">' +
     '<div class="icon-big">&#128527;</div>' +
     '<h1>Facile...<br><span>lo sapevo!</span></h1>' +
@@ -455,24 +455,24 @@ function screenZaraOk() {
 }
 
 function screenWait2() {
-  return backButton() +
+  return backBtn() +
     '<div class="screen">' +
     '<div class="icon-big bouncing">&#127873;</div>' +
-    '<h1>Ci e\' voluto<br><span>un po\'...</span></h1>' +
+    '<h1>Ci e voluto<br><span>un po...</span></h1>' +
     '<div class="divider"></div>' +
-    '<div class="card" style="text-align:center"><p>Ma alla fine ci siamo!<br><br>Anzi, che ne dici di <strong>un ultimo indovinello</strong>?<br>Ma si\' dai, e\' l\'ultimo prima di poter ricevere il tuo regalo!</p></div>' +
+    '<div class="card" style="text-align:center"><p>Ma alla fine ci siamo!<br><br>Anzi, che ne dici di <strong>un ultimo indovinello</strong>?<br>Ma si dai, e l\'ultimo prima di poter ricevere il tuo regalo!</p></div>' +
     '<button class="btn" onclick="go(\'borra_riddle\')">Continua</button>' +
     '</div>';
 }
 
 function screenBorraRiddle() {
-  return backButton() +
+  return backBtn() +
     '<div class="screen">' +
     '<div class="icon-big wiggling">&#129703;</div>' +
     '<div class="badge">L\'ultimo, promesso</div>' +
     '<h1>Ultimo<br><span>indovinello</span></h1>' +
     '<div class="divider"></div>' +
-    '<div class="card" style="text-align:center"><h2 style="text-align:center;margin-bottom:14px;">Indovinello:</h2><p style="font-style:italic;color:var(--deep);font-size:1.15rem;font-weight:500;">Fa schiuma ma non e\' sapone.</p></div>' +
+    '<div class="card" style="text-align:center"><h2 style="text-align:center;margin-bottom:14px;">Indovinello:</h2><p style="font-style:italic;color:var(--deep);font-size:1.15rem;font-weight:500;">Fa schiuma ma non e sapone.</p></div>' +
     letterInput('la borra', 'final', 'err_borra', false) +
     '</div>';
 }
@@ -483,8 +483,8 @@ function screenFinal() {
     '<div class="badge">Missione completata!</div>' +
     '<h1>Ce l\'hai<br><span>fatta!</span></h1>' +
     '<div class="divider"></div>' +
-    '<div class="final-gradient"><p><strong>Buon Compleanno Marianna!</strong><br><br>Hai superato tutte le sfide (con qualche difficolta\')<br>e ora il tuo regalo e\' finalmente tuo.<br><br>Ecco il tuo buono regalo:</p></div>' +
-    '<div class="gift-link-box"><p style="font-size:.85rem;color:#a07050;margin-bottom:10px;">Tocca il link qui sotto per riscattare il tuo regalo:</p><a href="https://www.zara.com/it/it/gift-card/519667022161/share-details?hash=19ac5a6b-9582-45c6-9b75-f6a9e47a0e74" target="_blank">&#127873; Ritira il tuo regalo Zara</a></div>' +
+    '<div class="final-gradient"><p><strong>Buon Compleanno Marianna!</strong><br><br>Hai superato tutte le sfide (con qualche difficolta)<br>e ora il tuo regalo e finalmente tuo.<br><br>Ecco il tuo buono regalo:</p></div>' +
+    '<div class="gift-link-box"><p style="font-size:.85rem;color:#a07050;margin-bottom:10px;">Tocca qui per riscattare il tuo regalo:</p><a href="https://www.zara.com/it/it/gift-card/519667022161/share-details?hash=19ac5a6b-9582-45c6-9b75-f6a9e47a0e74" target="_blank">&#127873; Ritira il tuo regalo Zara</a></div>' +
     '</div>';
 }
 
