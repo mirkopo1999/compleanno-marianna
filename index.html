@@ -39,6 +39,8 @@ p{font-size:.95rem;line-height:1.82;color:#5a3e2b;}
 .btn.outline{background:transparent;color:var(--coral);border:2px solid var(--coral);box-shadow:none;}
 .btn-row{display:flex;gap:12px;justify-content:center;margin-top:14px;flex-wrap:wrap;}
 .alert-gold{background:#fff8e1;border-left:4px solid var(--gold);border-radius:10px;padding:14px 18px;max-width:390px;width:100%;margin:12px 0;font-size:.9rem;color:#5a4010;line-height:1.65;}
+.back-btn{position:fixed;top:16px;left:16px;z-index:100;background:rgba(255,255,255,0.85);border:1.5px solid var(--blush);border-radius:100px;padding:8px 18px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;color:var(--deep);cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,0.07);backdrop-filter:blur(6px);display:flex;align-items:center;gap:6px;transition:background .15s;}
+.back-btn:hover{background:#fff;}
 .li-wrapper{max-width:390px;width:100%;margin:14px 0;cursor:text;position:relative;}
 .li-hidden{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;top:0;left:0;border:none;outline:none;}
 .li-tap-hint{text-align:center;font-size:.8rem;color:#b09070;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:5px;}
@@ -56,7 +58,7 @@ p{font-size:.95rem;line-height:1.82;color:#5a3e2b;}
 .final-gradient p{color:#fff;font-size:.97rem;}
 .final-gradient strong{font-family:'Playfair Display',serif;font-size:1.15rem;}
 .gift-link-box{background:#fff;border:1.5px solid var(--blush);border-radius:16px;padding:18px 20px;max-width:390px;width:100%;text-align:center;}
-.gift-link-box a{color:var(--coral);font-weight:500;word-break:break-all;font-size:.95rem;}
+.gift-link-box a{color:var(--coral);font-weight:500;word-break:break-all;font-size:.95rem;text-decoration:underline;}
 </style>
 </head>
 <body>
@@ -64,9 +66,19 @@ p{font-size:.95rem;line-height:1.82;color:#5a3e2b;}
 <div id="app"></div>
 <script>
 var LI = {answer:'', chars:[], locked:[], nextState:'', errId:''};
+var history = [];
 
 function liLockedHas(i) {
   return LI.locked.indexOf(i) !== -1;
+}
+
+function goBack() {
+  if (history.length > 1) {
+    history.pop();
+    var prev = history[history.length - 1];
+    history.pop();
+    go(prev);
+  }
 }
 
 function letterInput(answer, nextState, errId, showHints) {
@@ -199,6 +211,11 @@ function shakeLI() {
   }
 }
 
+function backButton() {
+  if (history.length <= 1) { return ''; }
+  return '<button class="back-btn" onclick="goBack()">&#8592; Indietro</button>';
+}
+
 function go(state) {
   var screens = {
     welcome: screenWelcome,
@@ -223,6 +240,7 @@ function go(state) {
     borra_riddle: screenBorraRiddle,
     final: screenFinal
   };
+  history.push(state);
   var fn = screens[state];
   document.getElementById('app').innerHTML = fn ? fn() : '';
   window.scrollTo(0, 0);
@@ -231,7 +249,8 @@ function go(state) {
 }
 
 function screenWelcome() {
-  return '<div class="screen">' +
+  return backButton() +
+    '<div class="screen">' +
     '<div class="icon-big bouncing">&#127874;</div>' +
     '<div class="badge">Messaggio speciale per te</div>' +
     '<h1>Buon Compleanno<br><span>Marianna!</span></h1>' +
@@ -243,7 +262,8 @@ function screenWelcome() {
 }
 
 function screenRiddle1() {
-  return '<div class="screen">' +
+  return backButton() +
+    '<div class="screen">' +
     '<div class="icon-big wiggling">&#128269;</div>' +
     '<div class="badge">Indovinello #1</div>' +
     '<h1>Prima<br><span>sfida</span></h1>' +
@@ -254,7 +274,8 @@ function screenRiddle1() {
 }
 
 function screenRiddle1Ok() {
-  return '<div class="screen">' +
+  return backButton() +
+    '<div class="screen">' +
     '<div class="icon-big">&#127881;</div>' +
     '<h1><span>Bravissima!!!</span></h1>' +
     '<div class="divider"></div>' +
@@ -264,7 +285,8 @@ function screenRiddle1Ok() {
 }
 
 function screenRiddle1Wait() {
-  return '<div class="screen">' +
+  return backButton() +
+    '<div class="screen">' +
     '<div class="icon-big">&#9995;</div>' +
     '<h1>Hey,<br><span>aspetta!</span></h1>' +
     '<div class="divider"></div>' +
@@ -274,7 +296,8 @@ function screenRiddle1Wait() {
 }
 
 function screenRiddle2() {
-  return '<div class="screen">' +
+  return backButton() +
+    '<div class="screen">' +
     '<div class="icon-big wiggling">&#129504;</div>' +
     '<div class="badge">Indovinello #2</div>' +
     '<h1>Seconda<br><span>sfida</span></h1>' +
@@ -285,7 +308,8 @@ function screenRiddle2() {
 }
 
 function screenRiddle2Ok() {
-  return '<div class="screen">' +
+  return backButton() +
+    '<div class="screen">' +
     '<div class="icon-big">&#127891;</div>' +
     '<h1><span>Ottimo!</span></h1>' +
     '<div class="divider"></div>' +
@@ -295,7 +319,8 @@ function screenRiddle2Ok() {
 }
 
 function screenRiddle2Question() {
-  return '<div class="screen">' +
+  return backButton() +
+    '<div class="screen">' +
     '<div class="icon-big">&#129299;</div>' +
     '<h1>Sei<br><span>capace?</span></h1>' +
     '<div class="divider"></div>' +
@@ -305,7 +330,8 @@ function screenRiddle2Question() {
 }
 
 function screenRiddle2No() {
-  return '<div class="screen">' +
+  return backButton() +
+    '<div class="screen">' +
     '<div class="icon-big">&#128566;</div>' +
     '<h1>Mah...<br><span>davvero?</span></h1>' +
     '<div class="divider"></div>' +
@@ -315,7 +341,8 @@ function screenRiddle2No() {
 }
 
 function screenPptRiddle() {
-  return '<div class="screen">' +
+  return backButton() +
+    '<div class="screen">' +
     '<div class="icon-big">&#127919;</div>' +
     '<div class="badge">Dimostralo!</div>' +
     '<h1>Dove<br><span>devi andare?</span></h1>' +
@@ -326,7 +353,8 @@ function screenPptRiddle() {
 }
 
 function screenPptOk() {
-  return '<div class="screen">' +
+  return backButton() +
+    '<div class="screen">' +
     '<div class="icon-big pulsing">&#127942;</div>' +
     '<h1>Non sei cosi\'<br><span>stupida!</span></h1>' +
     '<div class="divider"></div>' +
@@ -336,7 +364,8 @@ function screenPptOk() {
 }
 
 function screenWait1() {
-  return '<div class="screen">' +
+  return backButton() +
+    '<div class="screen">' +
     '<div class="icon-big bouncing">&#128205;</div>' +
     '<h1>Adesso<br><span>muoviti!</span></h1>' +
     '<div class="divider"></div>' +
@@ -346,7 +375,8 @@ function screenWait1() {
 }
 
 function screenApolloRiddle() {
-  return '<div class="screen">' +
+  return backButton() +
+    '<div class="screen">' +
     '<div class="icon-big wiggling">&#128640;</div>' +
     '<div class="badge">Giusto in tempo per un indovinello</div>' +
     '<h1>Missione<br><span>spaziale</span></h1>' +
@@ -357,7 +387,8 @@ function screenApolloRiddle() {
 }
 
 function screenApolloOk() {
-  return '<div class="screen">' +
+  return backButton() +
+    '<div class="screen">' +
     '<div class="icon-big">&#128760;</div>' +
     '<h1>Bene,<br><span>quasi...</span></h1>' +
     '<div class="divider"></div>' +
@@ -367,7 +398,8 @@ function screenApolloOk() {
 }
 
 function screenCastelloRiddle() {
-  return '<div class="screen">' +
+  return backButton() +
+    '<div class="screen">' +
     '<div class="icon-big">&#128548;</div>' +
     '<div class="card" style="text-align:center;margin-bottom:0"><p>Ormai non ti ferma piu\' nessuno...<br>oppure <strong>questo indovinello</strong> lo fara\'?</p></div>' +
     '<div class="divider"></div>' +
@@ -378,7 +410,8 @@ function screenCastelloRiddle() {
 }
 
 function screenCastelloOk() {
-  return '<div class="screen">' +
+  return backButton() +
+    '<div class="screen">' +
     '<div class="icon-big">&#128529;</div>' +
     '<h1>E vabbo\'<br><span>dai...</span></h1>' +
     '<div class="divider"></div>' +
@@ -388,7 +421,8 @@ function screenCastelloOk() {
 }
 
 function screenCcOk() {
-  return '<div class="screen">' +
+  return backButton() +
+    '<div class="screen">' +
     '<div class="icon-big pulsing">&#9989;</div>' +
     '<h1>Ottimo,<br><span>ci siamo!</span></h1>' +
     '<div class="divider"></div>' +
@@ -398,7 +432,8 @@ function screenCcOk() {
 }
 
 function screenZaraRiddle() {
-  return '<div class="screen">' +
+  return backButton() +
+    '<div class="screen">' +
     '<div class="icon-big wiggling">&#128717;</div>' +
     '<div class="badge">Quasi quasi...</div>' +
     '<h1>Indovina<br><span>chi sono!</span></h1>' +
@@ -409,7 +444,8 @@ function screenZaraRiddle() {
 }
 
 function screenZaraOk() {
-  return '<div class="screen">' +
+  return backButton() +
+    '<div class="screen">' +
     '<div class="icon-big">&#128527;</div>' +
     '<h1>Facile...<br><span>lo sapevo!</span></h1>' +
     '<div class="divider"></div>' +
@@ -419,7 +455,8 @@ function screenZaraOk() {
 }
 
 function screenWait2() {
-  return '<div class="screen">' +
+  return backButton() +
+    '<div class="screen">' +
     '<div class="icon-big bouncing">&#127873;</div>' +
     '<h1>Ci e\' voluto<br><span>un po\'...</span></h1>' +
     '<div class="divider"></div>' +
@@ -429,7 +466,8 @@ function screenWait2() {
 }
 
 function screenBorraRiddle() {
-  return '<div class="screen">' +
+  return backButton() +
+    '<div class="screen">' +
     '<div class="icon-big wiggling">&#129703;</div>' +
     '<div class="badge">L\'ultimo, promesso</div>' +
     '<h1>Ultimo<br><span>indovinello</span></h1>' +
@@ -446,7 +484,7 @@ function screenFinal() {
     '<h1>Ce l\'hai<br><span>fatta!</span></h1>' +
     '<div class="divider"></div>' +
     '<div class="final-gradient"><p><strong>Buon Compleanno Marianna!</strong><br><br>Hai superato tutte le sfide (con qualche difficolta\')<br>e ora il tuo regalo e\' finalmente tuo.<br><br>Ecco il tuo buono regalo:</p></div>' +
-    '<div class="gift-link-box"><p style="font-size:.85rem;color:#a07050;margin-bottom:8px;">Il tuo regalo ti aspetta qui:</p><p><em style="color:#bbb;font-size:.9rem;">[Il link verra\' aggiunto a breve]</em></p></div>' +
+    '<div class="gift-link-box"><p style="font-size:.85rem;color:#a07050;margin-bottom:10px;">Tocca il link qui sotto per riscattare il tuo regalo:</p><a href="https://www.zara.com/it/it/gift-card/519667022161/share-details?hash=19ac5a6b-9582-45c6-9b75-f6a9e47a0e74" target="_blank">&#127873; Ritira il tuo regalo Zara</a></div>' +
     '</div>';
 }
 
