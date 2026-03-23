@@ -41,27 +41,19 @@ p{font-size:.95rem;line-height:1.82;color:#5a3e2b;}
 .btn.outline{background:transparent;color:var(--coral);border:2px solid var(--coral);box-shadow:none;}
 .btn-row{display:flex;gap:12px;justify-content:center;margin-top:14px;flex-wrap:wrap;}
 .alert-gold{background:#fff8e1;border-left:4px solid var(--gold);border-radius:10px;padding:14px 18px;max-width:390px;width:100%;margin:12px 0;font-size:.9rem;color:#5a4010;line-height:1.65;}
-/* ── LETTER INPUT ── */
 .li-wrapper{max-width:390px;width:100%;margin:14px 0;cursor:text;position:relative;}
 .li-hidden{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;top:0;left:0;border:none;outline:none;}
 .li-tap-hint{text-align:center;font-size:.8rem;color:#b09070;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:5px;}
 .li-words{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;align-items:flex-end;}
 .li-word{display:flex;gap:4px;align-items:center;}
-.li-box{
-  width:32px;height:40px;border-radius:8px;border:2px solid var(--blush);background:#fff;
-  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.95rem;
-  color:var(--deep);text-transform:uppercase;transition:border-color .15s,background .15s,color .15s;
-  flex-shrink:0;
-}
+.li-box{width:32px;height:40px;border-radius:8px;border:2px solid var(--blush);background:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.95rem;color:var(--deep);text-transform:uppercase;transition:border-color .15s,background .15s,color .15s;flex-shrink:0;}
 .li-box.li-active{border-color:var(--coral);background:#fff8f6;}
 .li-box.li-filled{border-color:var(--coral);background:var(--coral);color:#fff;}
-/* hint = first/last letter shown as gold */
 .li-box.li-hint{border-color:var(--gold);background:var(--gold);color:#fff;}
 .li-box.li-shake{animation:shake .3s ease;}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 .li-gap{width:6px;}
 .li-err{color:var(--coral);font-size:.84rem;text-align:center;margin-top:8px;display:none;}
-/* FINAL */
 .final-gradient{background:linear-gradient(135deg,var(--coral),var(--gold));color:#fff;border-radius:20px;padding:24px 26px;max-width:390px;width:100%;text-align:center;margin:14px 0;}
 .final-gradient p{color:#fff;font-size:.97rem;}
 .final-gradient strong{font-family:'Playfair Display',serif;font-size:1.15rem;}
@@ -73,183 +65,108 @@ p{font-size:.95rem;line-height:1.82;color:#5a3e2b;}
 <div class="confetti-wrapper" id="confetti"></div>
 <div id="app"></div>
 <script>
-/* ══════════════════════════════════════════════
-   LETTER INPUT ENGINE
-   ══════════════════════════════════════════════ */
-const LI = { answer:'', chars:[], locked:new Set(), nextState:'', errId:'' };
+const LI={answer:'',chars:[],locked:new Set(),nextState:'',errId:''};
 
-/* Build the letterInput HTML + seed LI state */
-function letterInput(answer, nextState, errId, showHints) {
-const upper  = answer.toUpperCase();
-const flat   = upper.replace(/ /g,’’);
-const n      = flat.length;
-const chars  = Array(n).fill(’’);
-const locked = new Set();
-
-// Only show hints when showHints=true AND answer has > 3 letters (avoid giving away short answers)
-if (showHints && n > 3) {
-locked.add(0);   chars[0]   = flat[0];
-locked.add(n-1); chars[n-1] = flat[n-1];
-}
-
-// Seed global state immediately
-LI.answer    = upper;
-LI.chars     = chars;
-LI.locked    = locked;
-LI.nextState = nextState;
-LI.errId     = errId;
-
-// Build initial box HTML
-const words = upper.split(’ ’);
-let flatIdx = 0;
-const cursor = chars.findIndex((c,i) => !locked.has(i) && c === ‘’);
-let boxHtml = ‘<div class="li-words">’;
-for (let wi = 0; wi < words.length; wi++) {
-boxHtml += ‘<div class="li-word">’;
-for (let ci = 0; ci < words[wi].length; ci++) {
-const ch  = chars[flatIdx];
-const cls = locked.has(flatIdx) ? ‘li-hint’
-: ch                  ? ‘li-filled’
-: flatIdx === cursor  ? ‘li-active’
-: ‘’;
-boxHtml += `<div class="li-box ${cls}">${ch}</div>`;
+function letterInput(answer,nextState,errId,showHints){
+const upper=answer.toUpperCase();
+const flat=upper.replace(/ /g,’’);
+const n=flat.length;
+const chars=Array(n).fill(’’);
+const locked=new Set();
+if(showHints&&n>3){locked.add(0);chars[0]=flat[0];locked.add(n-1);chars[n-1]=flat[n-1];}
+LI.answer=upper;LI.chars=chars;LI.locked=locked;LI.nextState=nextState;LI.errId=errId;
+const words=upper.split(’ ‘);
+let flatIdx=0;
+const cursor=chars.findIndex((c,i)=>!locked.has(i)&&c===’’);
+let boxHtml=’<div class="li-words">’;
+for(let wi=0;wi<words.length;wi++){
+boxHtml+=’<div class="li-word">’;
+for(let ci=0;ci<words[wi].length;ci++){
+const ch=chars[flatIdx];
+const cls=locked.has(flatIdx)?‘li-hint’:ch?‘li-filled’:flatIdx===cursor?‘li-active’:’’;
+boxHtml+=`<div class="li-box ${cls}">${ch}</div>`;
 flatIdx++;
 }
-boxHtml += ‘</div>’;
-if (wi < words.length - 1) boxHtml += ‘<div class="li-gap"></div>’;
+boxHtml+=’</div>’;
+if(wi<words.length-1)boxHtml+=’<div class="li-gap"></div>’;
 }
-boxHtml += ‘</div>’;
+boxHtml+=’</div>’;
+return `<div class="li-wrapper" onclick="focusLI()">
+<input id="li-hidden" class="li-hidden" type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" onkeydown="liHandleKey(event)">
 
-return `
-
-<div class="li-wrapper" onclick="focusLI()">
-  <input id="li-hidden" class="li-hidden" type="text" inputmode="text"
-    autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"
-    onkeydown="liHandleKey(event)">
   <div class="li-tap-hint">⌨️ Tocca qui per digitare</div>
   <div id="li-display">${boxHtml}</div>
   <p class="li-err" id="${errId}">Non è corretto, riprova! 🙅</p>
 </div>
-<button class="btn" onclick="liConfirm()">Conferma ✓</button>`;
+<button class="btn" onclick="liConfirm()">Conferma ✓</button>`;}
+
+function focusLI(){const h=document.getElementById(‘li-hidden’);if(h)h.focus();}
+
+function liCursor(){for(let i=0;i<LI.chars.length;i++){if(!LI.locked.has(i)&&LI.chars[i]===’’)return i;}return -1;}
+
+function liHandleKey(e){
+const err=document.getElementById(LI.errId);
+if(e.key===‘Backspace’){
+for(let i=LI.chars.length-1;i>=0;i–){
+if(!LI.locked.has(i)&&LI.chars[i]!==’’){LI.chars[i]=’’;if(err)err.style.display=‘none’;liRender();return;}
+}return;
+}
+if(e.key===‘Enter’){liConfirm();return;}
+if(!/^[a-zA-Z0-9]$/.test(e.key))return;
+const cursor=liCursor();if(cursor===-1)return;
+LI.chars[cursor]=e.key.toUpperCase();if(err)err.style.display=‘none’;liRender();
 }
 
-function focusLI() {
-const h = document.getElementById(‘li-hidden’);
-if (h) h.focus();
-}
-
-function liCursor() {
-for (let i = 0; i < LI.chars.length; i++) {
-if (!LI.locked.has(i) && LI.chars[i] === ‘’) return i;
-}
-return -1;
-}
-
-function liHandleKey(e) {
-const err = document.getElementById(LI.errId);
-if (e.key === ‘Backspace’) {
-for (let i = LI.chars.length - 1; i >= 0; i–) {
-if (!LI.locked.has(i) && LI.chars[i] !== ‘’) {
-LI.chars[i] = ‘’;
-if (err) err.style.display = ‘none’;
-liRender(); return;
-}
-}
-return;
-}
-if (e.key === ‘Enter’) { liConfirm(); return; }
-if (!/^[a-zA-Z0-9]$/.test(e.key)) return;
-const cursor = liCursor();
-if (cursor === -1) return;
-LI.chars[cursor] = e.key.toUpperCase();
-if (err) err.style.display = ‘none’;
-liRender();
-}
-
-function liRender() {
-const display = document.getElementById(‘li-display’);
-if (!display) return;
-const words  = LI.answer.split(’ ’);
-const cursor = liCursor();
-let flatIdx  = 0;
-let html = ‘<div class="li-words">’;
-for (let wi = 0; wi < words.length; wi++) {
-html += ‘<div class="li-word">’;
-for (let ci = 0; ci < words[wi].length; ci++) {
-const ch  = LI.chars[flatIdx];
-const cls = LI.locked.has(flatIdx) ? ‘li-hint’
-: ch                     ? ‘li-filled’
-: flatIdx === cursor     ? ‘li-active’
-: ‘’;
-html += `<div class="li-box ${cls}">${ch}</div>`;
+function liRender(){
+const display=document.getElementById(‘li-display’);if(!display)return;
+const words=LI.answer.split(’ ‘);
+const cursor=liCursor();
+let flatIdx=0;
+let html=’<div class="li-words">’;
+for(let wi=0;wi<words.length;wi++){
+html+=’<div class="li-word">’;
+for(let ci=0;ci<words[wi].length;ci++){
+const ch=LI.chars[flatIdx];
+const cls=LI.locked.has(flatIdx)?‘li-hint’:ch?‘li-filled’:flatIdx===cursor?‘li-active’:’’;
+html+=`<div class="li-box ${cls}">${ch}</div>`;
 flatIdx++;
 }
-html += ‘</div>’;
-if (wi < words.length - 1) html += ‘<div class="li-gap"></div>’;
+html+=’</div>’;
+if(wi<words.length-1)html+=’<div class="li-gap"></div>’;
 }
-html += ‘</div>’;
-display.innerHTML = html;
-}
-
-function liConfirm() {
-if (LI.chars.some(c => c === ‘’)) { shakeLI(); return; }
-const typed  = LI.chars.join(’’).toLowerCase();
-const answer = LI.answer.replace(/ /g,’’).toLowerCase();
-if (typed === answer) {
-go(LI.nextState);
-} else {
-shakeLI();
-const err = document.getElementById(LI.errId);
-if (err) err.style.display = ‘block’;
-}
+html+=’</div>’;
+display.innerHTML=html;
 }
 
-function shakeLI() {
-const display = document.getElementById(‘li-display’);
-if (!display) return;
-display.querySelectorAll(’.li-box’).forEach(b => {
-b.classList.remove(‘li-shake’);
-void b.offsetWidth;
-b.classList.add(‘li-shake’);
-});
+function liConfirm(){
+if(LI.chars.some(c=>c===’’)){shakeLI();return;}
+const typed=LI.chars.join(’’).toLowerCase();
+const answer=LI.answer.replace(/ /g,’’).toLowerCase();
+if(typed===answer){go(LI.nextState);}
+else{shakeLI();const err=document.getElementById(LI.errId);if(err)err.style.display=‘block’;}
 }
 
-/* ══════════════════════════════════════════════
-STATE MACHINE
-══════════════════════════════════════════════ */
-function go(state) {
-const STATES = {
-welcome:          screenWelcome,
-riddle1:          screenRiddle1,
-riddle1_ok:       screenRiddle1Ok,
-riddle1_wait:     screenRiddle1Wait,
-riddle2:          screenRiddle2,
-riddle2_ok:       screenRiddle2Ok,
-riddle2_question: screenRiddle2Question,
-riddle2_no:       screenRiddle2No,
-ppt_riddle:       screenPptRiddle,
-ppt_ok:           screenPptOk,
-wait1:            screenWait1,
-apollo_riddle:    screenApolloRiddle,
-apollo_ok:        screenApolloOk,
-castello_riddle:  screenCastelloRiddle,
-castello_ok:      screenCastelloOk,
-cc_ok:            screenCcOk,
-zara_riddle:      screenZaraRiddle,
-zara_ok:          screenZaraOk,
-wait2:            screenWait2,
-borra_riddle:     screenBorraRiddle,
-final:            screenFinal
+function shakeLI(){
+const display=document.getElementById(‘li-display’);if(!display)return;
+display.querySelectorAll(’.li-box’).forEach(b=>{b.classList.remove(‘li-shake’);void b.offsetWidth;b.classList.add(‘li-shake’);});
+}
+
+function go(state){
+const STATES={
+welcome:screenWelcome,riddle1:screenRiddle1,riddle1_ok:screenRiddle1Ok,
+riddle1_wait:screenRiddle1Wait,riddle2:screenRiddle2,riddle2_ok:screenRiddle2Ok,
+riddle2_question:screenRiddle2Question,riddle2_no:screenRiddle2No,
+ppt_riddle:screenPptRiddle,ppt_ok:screenPptOk,wait1:screenWait1,
+apollo_riddle:screenApolloRiddle,apollo_ok:screenApolloOk,
+castello_riddle:screenCastelloRiddle,castello_ok:screenCastelloOk,
+cc_ok:screenCcOk,zara_riddle:screenZaraRiddle,zara_ok:screenZaraOk,
+wait2:screenWait2,borra_riddle:screenBorraRiddle,final:screenFinal
 };
-document.getElementById(‘app’).innerHTML = STATES[state] ? STATES[state]() : ‘’;
-window.scrollTo({top:0, behavior:‘smooth’});
-if ([‘welcome’,‘final’,‘ppt_ok’].includes(state)) spawnConfetti();
-setTimeout(() => focusLI(), 120);
+document.getElementById(‘app’).innerHTML=STATES[state]?STATES[state]():’’;
+window.scrollTo({top:0,behavior:‘smooth’});
+if([‘welcome’,‘final’,‘ppt_ok’].includes(state))spawnConfetti();
+setTimeout(()=>focusLI(),120);
 }
-
-/* ══════════════════════════════════════════════
-SCREENS
-══════════════════════════════════════════════ */
 
 function screenWelcome(){return`
 
@@ -268,7 +185,6 @@ function screenWelcome(){return`
   <button class="btn" onclick="go('riddle1')">Inizia la caccia al tesoro 🗺️</button>
 </div>`;}
 
-/* RIDDLE 1 — risposta: PULLMAN — con hint P_____N */
 function screenRiddle1(){return`
 
 <div class="screen">
@@ -280,7 +196,7 @@ function screenRiddle1(){return`
     <h2>🤔 Riesci a rispondere?</h2>
     <p style="font-style:italic;color:var(--deep);font-size:1.05rem;margin-bottom:8px;">"Cosa puoi prendere tra Via Piangipane e Via Kennedy?"</p>
   </div>
-  ${letterInput('pullman','riddle1_ok','err1', true)}
+  ${letterInput('pullman','riddle1_ok','err1',true)}
 </div>`;}
 
 function screenRiddle1Ok(){return`
@@ -307,7 +223,6 @@ function screenRiddle1Wait(){return`
   <button class="btn" onclick="go('riddle2')">Prosegui</button>
 </div>`;}
 
-/* RIDDLE 2 — risposta: TRAVAGLIO — con hint T_______O */
 function screenRiddle2(){return`
 
 <div class="screen">
@@ -319,7 +234,7 @@ function screenRiddle2(){return`
     <h2>🤔 Riesci a rispondere?</h2>
     <p style="font-style:italic;color:var(--deep);font-size:1.05rem;margin-bottom:8px;">"Come si chiama l'insieme di contrazioni che prepara la donna al parto?"</p>
   </div>
-  ${letterInput('travaglio','riddle2_ok','err2', true)}
+  ${letterInput('travaglio','riddle2_ok','err2',true)}
 </div>`;}
 
 function screenRiddle2Ok(){return`
@@ -362,7 +277,6 @@ function screenRiddle2No(){return`
   <button class="btn" onclick="go('riddle2_question')">Ok ok, ci riprovo 😂</button>
 </div>`;}
 
-/* PPT RIDDLE — risposta: PULLMAN PIAZZA TRAVAGLIO — con hint P______   P_____   T________O */
 function screenPptRiddle(){return`
 
 <div class="screen">
@@ -373,7 +287,7 @@ function screenPptRiddle(){return`
   <div class="card" style="text-align:center">
     <p>Hai tutte le informazioni.<br>Scrivi la <strong>fermata esatta</strong> del pullman! 🚌</p>
   </div>
-  ${letterInput('pullman piazza travaglio','ppt_ok','err_ppt', true)}
+  ${letterInput('pullman piazza travaglio','ppt_ok','err_ppt',true)}
 </div>`;}
 
 function screenPptOk(){return`
@@ -400,7 +314,6 @@ function screenWait1(){return`
   <button class="btn gold" onclick="go('apollo_riddle')">Ci sono ✅</button>
 </div>`;}
 
-/* APOLLO — risposta: 11 — solo 2 cifre, niente hint */
 function screenApolloRiddle(){return`
 
 <div class="screen">
@@ -412,10 +325,9 @@ function screenApolloRiddle(){return`
     <h2>🤔 Indovinello:</h2>
     <p style="font-style:italic;color:var(--deep);font-size:1.02rem;margin-bottom:8px;">"Qual è il numero della missione Apollo che nel 1969 portò per la prima volta l'uomo sulla Luna?"</p>
   </div>
-  ${letterInput('11','apollo_ok','err_apollo', false)}
+  ${letterInput('11','apollo_ok','err_apollo',false)}
 </div>`;}
 
-/* BUS — risposta: 11 — solo 2 cifre, niente hint */
 function screenApolloOk(){return`
 
 <div class="screen">
@@ -425,10 +337,9 @@ function screenApolloOk(){return`
   <div class="card" style="text-align:center">
     <p>Non sarà una missione spaziale, ma che ne dici di salire su uno <strong>"shuttle" di città</strong>? 🚌<br><br>Quale lo dovresti già sapere…</p>
   </div>
-  ${letterInput('11','castello_riddle','err_bus', false)}
+  ${letterInput('11','castello_riddle','err_bus',false)}
 </div>`;}
 
-/* CASTELLO — risposta: IL CASTELLO — con hint I_ C_______O */
 function screenCastelloRiddle(){return`
 
 <div class="screen">
@@ -442,10 +353,9 @@ function screenCastelloRiddle(){return`
     <h2>🏰 Che cosa sono?</h2>
     <p style="font-style:italic;color:var(--deep);font-size:.97rem;line-height:1.95;margin-bottom:8px;">"Ho torri che toccano il cielo e mura che sfidano il tempo. Re e regine mi hanno abitato, cavalieri mi hanno difeso. Fossati e ponti levatoi erano la mia guardia. Oggi sono memoria di pietra, ma un tempo ero cuore di potere. Che cosa sono?"</p>
   </div>
-  ${letterInput('il castello','castello_ok','err_castello', true)}
+  ${letterInput('il castello','castello_ok','err_castello',true)}
 </div>`;}
 
-/* ✅ FIX: risposta corretta = CENTRO COMMERCIALE IL CASTELLO */
 function screenCastelloOk(){return`
 
 <div class="screen">
@@ -455,7 +365,7 @@ function screenCastelloOk(){return`
   <div class="card" style="text-align:center">
     <p>Era per bambini quell'indovinello 😑<br><br>Però ora almeno ti sarà venuto in mente <strong>quando scendere</strong>… spero.<br><br>Anzi, <strong>dimostramelo</strong>:</p>
   </div>
-  ${letterInput('centro commerciale il castello','cc_ok','err_cc', true)}
+  ${letterInput('centro commerciale il castello','cc_ok','err_cc',true)}
 </div>`;}
 
 function screenCcOk(){return`
@@ -470,7 +380,6 @@ function screenCcOk(){return`
   <button class="btn gold" onclick="go('zara_riddle')">Sono arrivata ✅</button>
 </div>`;}
 
-/* ZARA — niente hint (ultimi indovinelli) */
 function screenZaraRiddle(){return`
 
 <div class="screen">
@@ -482,7 +391,7 @@ function screenZaraRiddle(){return`
     <h2>🤔 Chi sono?</h2>
     <p style="font-style:italic;color:var(--deep);font-size:.97rem;line-height:1.95;margin-bottom:8px;">"Sono nata in Spagna ma oggi mi trovi in ogni grande città. Mi occupo di vestirti seguendo le ultime tendenze, ma se mi cerchi in Via Ada Negri a Ferrara, sono il punto di riferimento per chi vuole andare al centro commerciale. Chi sono?"</p>
   </div>
-  ${letterInput('zara','zara_ok','err_zara', false)}
+  ${letterInput('zara','zara_ok','err_zara',false)}
 </div>`;}
 
 function screenZaraOk(){return`
@@ -509,7 +418,6 @@ function screenWait2(){return`
   <button class="btn" onclick="go('borra_riddle')">Continua</button>
 </div>`;}
 
-/* BORRA — niente hint (ultimi indovinelli) */
 function screenBorraRiddle(){return`
 
 <div class="screen">
@@ -521,7 +429,7 @@ function screenBorraRiddle(){return`
     <h2 style="text-align:center;margin-bottom:14px;">🤔 Indovinello:</h2>
     <p style="font-style:italic;color:var(--deep);font-size:1.15rem;font-weight:500;">"Fa schiuma ma non è sapone."</p>
   </div>
-  ${letterInput('la borra','final','err_borra', false)}
+  ${letterInput('la borra','final','err_borra',false)}
 </div>`;}
 
 function screenFinal(){return`
@@ -543,9 +451,6 @@ function screenFinal(){return`
   </div>
 </div>`;}
 
-/* ══════════════════════════════════════════════
-CONFETTI
-══════════════════════════════════════════════ */
 function spawnConfetti(){
 const w=document.getElementById(‘confetti’);w.innerHTML=’’;
 const C=[’#e8604c’,’#e8a838’,’#f2c4b0’,’#f7a8b0’,’#ffd166’,’#a8dadc’,’#b8f0a0’];
