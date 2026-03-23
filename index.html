@@ -107,7 +107,7 @@ function liCursor(){for(let i=0;i<LI.chars.length;i++){if(!LI.locked.has(i)&&LI.
 function liHandleKey(e){
 const err=document.getElementById(LI.errId);
 if(e.key===‘Backspace’){
-for(let i=LI.chars.length-1;i>=0;i–){
+for(let i=LI.chars.length-1;i>=0;i–-){
 if(!LI.locked.has(i)&&LI.chars[i]!==’’){LI.chars[i]=’’;if(err)err.style.display=‘none’;liRender();return;}
 }return;
 }
